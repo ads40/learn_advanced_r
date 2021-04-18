@@ -1,0 +1,98 @@
+---
+title: 'Chapter 2: names and values'
+author: "ADS"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+output: html_document
+---
+
+```{r setup}
+library(lobstr)
+```
+
+# Section 2.2: Binding basics
+
+Create an object and bind it to a name:
+
+```{r}
+x <- c(1, 2, 3)
+```
+
+Bind the object to another name:
+
+```{r}
+y <- x
+```
+
+Only one object exists at this stage: check this by inspecting the
+object's address in memory:
+
+```{r}
+obj_addr(x)
+obj_addr(y)
+```
+
+
+Names need to avoid reserved words (see `?Reserved`), follow the naming rules 
+(see `?make.names`) or be surrounded with backticks.
+
+Note that the locale of the system determines what are "letters" and what are
+not letters. This has unfortunate side-effects:
+
+> "That means that the syntax of R code cab actually differ from computer to
+> computer, and that it's possible for a file that works on one computer to not
+> even parse on another! Avoid this problem by sticking to ASCII characters
+> (i.e. A-Z) as much as possible."
+> 
+> --- Wickham 2019, 20 n. 1.
+
+## 2.2.2 Exercises
+
+### Question 1
+
+```{r}
+a <- 1:10
+b <- a
+c <- b
+d <- 1:10
+```
+
+All three of `a`, `b`, and `c` are names bound to the same object; `d` is bound 
+to a different object.
+
+### Question 2
+
+```{r}
+mean
+base::mean
+get("mean") # `base::get` "return the value of a named object"
+evalq(mean) # `base::evalq` "evaluate an R expression in an environment"
+match.fun("mean")
+```
+
+All these expressions point to the same underlying object.
+
+### Question 3
+
+The default conversion to syntactic names is problematic because functions like 
+read.csv() (see `?read.csv`) silently change the column names in the source 
+data. Suppress this with `check.names = FALSE`.
+
+### Question 4
+
+Rules for `make.names` (see `?make.names`):
+
+> The character "X" is prepended if necessary. All invalid characters are
+> translated to ".". A missing value is translated to "NA". Names which match R
+> keywords have a dot appended to them. Duplicated values are altered by
+> `make.unique`.
+> 
+> --- [Package documentation `base` version 4.0.5]
+
+### Question 5
+
+`.123e1` is not a syntactic name because syntactic names start with a letter or
+a dot *not followed by a number*.
+
+# Section 2.3: copy-on-modify
+
+
