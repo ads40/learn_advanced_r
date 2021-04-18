@@ -31,9 +31,14 @@ vignettes/*.pdf
 *_cache/
 /cache/
 
-# Temporary files created by R markdown
+# Temporary files created by RMarkdown
 *.utf8.md
 *.knit.md
+
+# HTML and PDF files produced by RMarkdown
+
+*.html
+*.pdf
 
 # R Environment Variables
 .Renviron
