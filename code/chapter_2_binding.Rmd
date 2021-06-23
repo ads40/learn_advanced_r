@@ -45,7 +45,7 @@ not letters. This has unfortunate side-effects:
 > 
 > --- Wickham 2019, 20 n. 1.
 
-## 2.2.2 Exercises
+## 2.2 Exercises
 
 ### Question 1
 
@@ -127,7 +127,7 @@ cat(tracemem(x), "\n")
 y <- x
 # when y is first modified, a new copy is made
 y[[3]] <- 4L
-# but not after that
+# but not after that, due to modify-in-place optimisation (only one name bound to the object)
 y[[3]] <- 5L
 # turn off memory tracing
 untracemem(x)
@@ -158,8 +158,8 @@ untracemem(x)
 
 ```
 
-The same behaviour applies to lists, but remember that lists store references to values rather than
-the values themselves.
+The same behaviour applies to lists, but lists store **references** to values rather than the
+values themselves.
 
 The copy-on-modify behaviour for lists is to make a **shallow copy** (since R 3.1.0): references to
 the changed values are updated when the copy is made, but the references to the unchanged values
@@ -176,4 +176,131 @@ l2[[3]] <- 4
 ref(l1, l2)
 ```
 
-Data frames
+Data frames are lists of vectors. Note that modifying a column changes only that column, but that
+modifying a row changes all the columns: in the context of copy-on-modify, this makes the first
+operation much more efficient than the latter.
+
+Character vectors are also references under the hood, specifically to a global string pool, in order
+to make memory usage more efficient.
+
+## 2.3 Exercises
+
+### Question 1
+
+`tracemem(1:10)` is not useful because there is no binding between a name and a value, just the
+value itself, and so there is therefore nothing to track (the binding of names to objects).
+
+### Question 2
+
+A copy is made when setting `x[[3]]` to a double, since up to this point `x` is an integer vector.
+
+### Question 3
+
+`a` is bound to an object with the value `1:10`; `b` is bound to a list with two references to `a`;
+`c` is bound to a list with references to `b`, to `a`, and to another different object with the
+value `1:10`.
+
+### Question 4
+
+```
+x <- list(1:10)
+x[[2]] <- x
+ref(x)
+#> o [1:0xd0c8a58] <list>
+#> +-[2:0xc709b30] <int>
+#> \-o [3:0xd139fd0] <list>
+#>   \-[2:0xc709b30]
+```
+
+Setting `x[[2]] <- x` makes a copy of the list and inserts the copy into the original list, but
+the same object with the value `1:10` is referenced at both levels.
+
+# 2.4 Object size
+
+Use `lobstr::obj_size()` for a measure of the memory that an object takes. Avoid the similar
+function `utils::object.size()`.
+
+Lists and character vectors take up much less memory than might be expected due to the use of 
+references.
+
+Since R 3.5 the ALTREP optimisation leads to compact storage of certain types of vectors, e.g. 
+numeric vectors involving ranges.
+
+```{r}
+obj_size(1:3)
+obj_size(1:1e3)
+obj_size(1:1e6)
+obj_size(1:1e9)
+# all 680 B
+```
+
+## 2.4 Exercises
+
+### Question 1
+
+```{r}
+y <- rep(list(runif(1e4)), 100)
+
+object.size(y)
+#> 8005648 bytes
+obj_size(y)
+#> 80,896 B
+```
+
+Since `object.size` doesn't account for shared objects, the hundred-fold repetition of the same
+object `list(runif(1e4))` is not taken into account.
+
+```{r}
+x <- runif(1e4)
+obj_size(x)
+#> 80,048 B
+
+```
+
+### Question 2
+
+```{r}
+funs <- list(mean, sd, var)
+obj_size(funs)
+#> 17,608 B
+```
+
+
+The list comprises three references to functions in base; these are always there, as part of R
+itself, and there may be underlying internal code that is not represented in the surface R object.
+
+### Question 3
+
+```{r}
+a <- runif(1e6)
+obj_size(a)
+
+b <- list(a, a)
+obj_size(b)
+obj_size(a, b)
+
+b[[1]][[1]] <- 10
+obj_size(b)
+obj_size(a, b)
+
+b[[2]][[1]] <- 10
+obj_size(b)
+obj_size(a, b)
+```
+
+`a` will be a certain size, given the amount of numbers it contains. `b` will be slightly larger,
+with two references to the same object.
+
+`a` and `b` together will be the same size as `b`.
+
+Once the first element of `b` is modified, then the overall size of `b` will double: there are now
+two of the structure initially represented as `a`. `a` and `b` together will be the same size
+as `b`.
+
+Once the second element of `b` is modified, the overall size of `b` remains as before: two of the
+structure initially represented as `a`. But `a` and `b` together will now be three times as large
+as `a`: the two structures in `b` are no longer the same as `a` and there are now three copies of 
+the structure initially represented as `a`.
+
+# 2.5 Modify-in-place
+
