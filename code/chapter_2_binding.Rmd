@@ -35,7 +35,7 @@ obj_addr(y)
 Names need to avoid reserved words (see `?Reserved`), follow the naming rules 
 (see `?make.names`) or be surrounded with backticks.
 
-Note that the locale of the system determines what are "letters" and what are
+**ALARM!** The locale of the system determines what are "letters" and what are
 not letters. This has unfortunate side-effects:
 
 > "That means that the syntax of R code cab actually differ from computer to
@@ -95,4 +95,85 @@ a dot *not followed by a number*.
 
 # Section 2.3: copy-on-modify
 
+R has **copy-on-modify** behaviour for the bindings of names to values. You can bind multiple names
+to the same value, but when you modify the value of one of these bindings, a new object is created
+and bound to that name. In general, R objects are immutable, but see section 2.5 for instances of
+modify-in-place behaviour.
 
+```{r}
+x <- c(1, 2, 3)
+y <- x
+# same object
+obj_addr(x)
+obj_addr(y)
+# modify the contents of y
+y[[3]]
+y[[3]] <- 4
+# different contents and different object
+x
+y
+obj_addr(x)
+obj_addr(y)
+```
+
+To explore copy-on-modify, you need to use a terminal or RMarkdown instead of the RStudio console.
+RStudio's environment pane keeps references to objects in order to print information about them,
+and this confuses things.
+
+```{r}
+x
+# turn on memory tracing for the object bound to the name x
+cat(tracemem(x), "\n")
+y <- x
+# when y is first modified, a new copy is made
+y[[3]] <- 4L
+# but not after that
+y[[3]] <- 5L
+# turn off memory tracing
+untracemem(x)
+```
+
+This behaviour also applies to function calls. To demonstrate this, define an identify function
+with its own internal name-value bindings, and use the memory tracing technique.
+
+```{r}
+# identity function with internal binding
+f <- function(a) {
+  a
+}
+
+x <- c(1, 2, 3)
+cat(tracemem(x), "\n")
+
+z <- f(x)
+# z and x point to the same object: no copy
+# but a function call involving a modification will generate a copy
+g <- function(b) {
+  b[[1]] <- 100
+}
+
+y <- g(x)
+
+untracemem(x)
+
+```
+
+The same behaviour applies to lists, but remember that lists store references to values rather than
+the values themselves.
+
+The copy-on-modify behaviour for lists is to make a **shallow copy** (since R 3.1.0): references to
+the changed values are updated when the copy is made, but the references to the unchanged values
+remain the same.
+
+The function `lobstr::ref()` exposes the relevant memory addresses.
+
+```{r}
+
+l1 <- list(1, 2, 3)
+l2 <- l1
+l2[[3]] <- 4
+
+ref(l1, l2)
+```
+
+Data frames
