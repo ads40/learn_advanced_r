@@ -433,3 +433,4 @@ The chapter concludes with a short discussion of the garbage collector in R. The
 - R uses a tracing GC, starting from the global environment.
 - The GC runs when R needs more memory.
 - No need to consider the GC.
+
