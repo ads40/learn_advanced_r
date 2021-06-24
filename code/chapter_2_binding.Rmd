@@ -421,7 +421,10 @@ faster than the data frame (up to ncols = 1000 where the list takes 1/3 the time
 ### Question 3
 
 ```{r}
-cat(tracemem(e), "\n")
+# Don't run
+
+# cat(tracemem(e), "\n")
+
 #> Error in tracemem(e) : 
 #>   'tracemem' is not useful for promise and environment objects
 ```
