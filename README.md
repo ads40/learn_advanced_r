@@ -5,10 +5,6 @@ Here I work section-by-section through Hadley Wickham's *Advanced R*
 
 - Wickham, Hadley. *Advanced R*. Second edition. Boca Raton: CRC Press/Taylor & 
   Francis Group, 2019.
-  
-## Contents
-
-- Chapter 2 on bindings: [code/chapter_2_binding.R](code/chapter_2_binding.R)
 
 ## Environment
 
