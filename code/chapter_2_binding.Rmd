@@ -309,4 +309,118 @@ There are two exceptions to the copy-on-modify behaviour:
 1. A object with a single binding is modified-in-place, as an optimisation (no extra allocation).
 2. Environments are always modified-in-place, as an exception to the rule.
 
-Things get a bit more complicated. 
+Things get a bit more complicated, however, in practice. There are two particular causes for this:
+
+- R counts 0, 1 or many bindings, and once an object has many bindings there is no going back. So
+  releasing a binding will not lead to the modification-in-place optimisation: one less than many is
+  many.
+- Calling most functions results in a reference to the object involved (hence objects get to many
+  bindings without explicit name bindings).
+  
+  > "Together, these two complications make it hard to predict whether or not a copy will occur.
+  > Instead, it's better to determine it empirically with `tracemem()`."
+  >
+  > --- Wickham 2019, 32.
+
+```{r}
+x <- data.frame(matrix(runif(5 * 1e4), ncol = 5))
+medians <- vapply(x, median, numeric(1))
+
+cat(tracemem(x), "\n")
+#> <00000206DA154B78>
+
+for (i in seq_along(medians)) {
+  x[[i]] <- x[[i]] - medians[[i]]
+}
+
+#> tracemem[0x00000206da154b78 -> 0x00000206da7f8048]: 
+#> tracemem[0x00000206da7f8048 -> 0x00000206da7f7fd8]: [[<-.data.frame [[<- 
+#> tracemem[0x00000206da7f7fd8 -> 0x00000206da7f7f68]: 
+#> tracemem[0x00000206da7f7f68 -> 0x00000206da7f7ef8]: [[<-.data.frame [[<- 
+#> tracemem[0x00000206da7f7ef8 -> 0x00000206da7f7e88]: 
+#> tracemem[0x00000206da7f7e88 -> 0x00000206da7f7e18]: [[<-.data.frame [[<- 
+#> tracemem[0x00000206da7f7e18 -> 0x00000206da7f7da8]: 
+#> tracemem[0x00000206da7f7da8 -> 0x00000206da7f7d38]: [[<-.data.frame [[<- 
+#> tracemem[0x00000206da7f7d38 -> 0x00000206da7f7cc8]: 
+#> tracemem[0x00000206da7f7cc8 -> 0x00000206da7f7c58]: [[<-.data.frame [[<- 
+```
+
+There seem to be two copies here for each column rather than the three Wickham points to in his
+discussion. Improvements in the efficiency of underlying code (R version 4.1)?
+
+Wickham suggests that using a list instead of a data frame will speed things up, since the list
+modification "uses internal C code, so the references are not incremented and only a single copy
+is made" (2019, 33).
+
+```{r}
+y <- as.list(x)
+cat(tracemem(y), "\n")
+#> <00000206D70CD3B8> 
+  
+for (i in 1:5) {
+  y[[i]] <- y[[i]] - medians[[i]]
+}
+#> tracemem[0x00000206d70cd3b8 -> 0x00000206d696b590]: 
+```
+
+This is confirmed. But the actual takeaway for Wickham is this:
+
+> "While it’s not hard to determine when a copy is made, it is hard to prevent it. If you find 
+> yourself resorting to exotic tricks to avoid copies, it may be time to rewrite your function 
+> in C++ ..."
+>
+> --- Wickham 2019, 34
+
+Environments are always modified-in-place. This feature can be exploited to create functions that
+maintain state, and it underpins the R6 object system.
+
+Environments can contain themselves.
+
+```{r}
+e <- rlang::env()
+e$self <- e
+
+ref(e)
+#> o [1:0x206d83f54a0] <env> 
+#> \-self = [1:0x206d83f54a0] 
+```
+
+## 2.5.3 Exercises
+
+### Question 1
+
+```{r}
+x <- list()
+x[[1]] <- x
+```
+
+This does not create a circular list because R's copy-on-modify behaviour makes a copy in this
+situation. Only environments can contain themselves.
+
+### Question 2
+
+```{r}
+z <- 1000
+
+x <- data.frame(matrix(runif(z * 1e4), ncol = z))
+x_medians <- vapply(x, median, numeric(1))
+
+y <- as.list(data.frame(matrix(runif(z * 1e4), ncol = z)))
+y_medians <- vapply(y, median, numeric(1))
+
+bench::mark(
+  "data frame" = for(i in seq_along(x_medians)) {x[[i]] <- x[[i]] - x_medians[[i]]},
+  "list" = for(i in seq_along(y_medians)) {y[[i]] <- y[[i]] - y_medians[[i]]},
+  time_unit = "ms"
+)
+```
+
+
+### Question 3
+
+```{r}
+cat(tracemem(e), "\n")
+#> Error in tracemem(e) : 
+#>   'tracemem' is not useful for promise and environment objects
+```
+
