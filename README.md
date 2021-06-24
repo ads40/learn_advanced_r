@@ -12,7 +12,7 @@ Here I work section-by-section through Hadley Wickham's *Advanced R*
 
 ## Environment
 
-- R version 4.0.5 (2021-03-31)
+- R version 4.1.0 (2021-05-18)
 - Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 ## Authors
