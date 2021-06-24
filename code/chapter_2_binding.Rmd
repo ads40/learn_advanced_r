@@ -291,11 +291,11 @@ obj_size(a, b)
 `a` will be a certain size, given the amount of numbers it contains. `b` will be slightly larger,
 with two references to the same object.
 
-`a` and `b` together will be the same size as `b`.
+`a` and `b` together will be the same size as `b`, given that `b` contains `a`.
 
 Once the first element of `b` is modified, then the overall size of `b` will double: there are now
 two of the structure initially represented as `a`. `a` and `b` together will be the same size
-as `b`.
+as `b`, given that `b` still contains `a`.
 
 Once the second element of `b` is modified, the overall size of `b` remains as before: two of the
 structure initially represented as `a`. But `a` and `b` together will now be three times as large
@@ -304,3 +304,9 @@ the structure initially represented as `a`.
 
 # 2.5 Modify-in-place
 
+There are two exceptions to the copy-on-modify behaviour:
+
+1. A object with a single binding is modified-in-place, as an optimisation (no extra allocation).
+2. Environments are always modified-in-place, as an exception to the rule.
+
+Things get a bit more complicated. 
