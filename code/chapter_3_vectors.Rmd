@@ -1,0 +1,81 @@
+---
+title: "Chapter 3 Vectors"
+author: "ADS"
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+output: html_document
+---
+
+
+# Basic definitions
+
+Vectors are the key group of data types in R. There is a basic division between atomic vectors
+and lists:
+
+- **atomic vector**: all elements have the same type
+- **list**: elements can have different types
+
+`NULL` is not a vector, but is often used as a generic zero-length vector.
+
+Vectors can have **attributes**: a named list of metadata. Two of these attributes are widely used:
+
+- **dimension**: by adding dimensions, vectors can be structured as matrices
+- **class**: this attribute is central to the S3 object system.
+
+# Section 3.2 Atomic vectors
+
+Atomic vectors include the following types:
+
+1. logical
+2. integer
+3. double
+4. character (string)
+5. complex
+6. raw
+
+The first four are common. The types `integer` and `double` are both `numeric`.
+
+The types `complex` and `raw` are used less often. Complex numbers are stored in vectors of type
+`complex`, and raw bytes (binary data) are stored in vectors of type `raw`.
+
+## "Scalar" literals
+
+R actually implements single values as vectors of length 1.
+
+```{r}
+x <- 1
+x[1]
+
+# or even
+TRUE[1]
+# this one only works in the console
+# 1[1]
+
+```
+
+There are literals to represent a vector of length 1 for each type.
+
+- logical: `TRUE` or `FALSE`, or `T` or `F`
+- double: decimal `0.1231`, scientific `1.23e4` or hex `0xCAFE`, 
+  plus three special values `Inf`, `-Inf`, `NaN`
+- integer: decimal `1231L`, scientific `1.23e4L` or hex `0xCAFEL`
+- string: double or single quotation marks `"Hi!"`, `'Bye!'`, but double quotes are preferred
+
+```{r}
+a <- TRUE
+b <- 3.14
+c <- 3.14e-1
+d <- 0xBEEF
+e <- "Hi!"
+f <- 'Bye!'
+
+a
+b
+c
+d
+e
+f
+```
+
+String content often requires escaping: `?Quotes` gives the details.
+
+Remember here that non-syntactic names can be "escaped" by quoting with backticks: `.2way`.
