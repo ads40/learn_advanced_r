@@ -304,6 +304,12 @@ the structure initially represented as `a`.
 
 # 2.5 Modify-in-place
 
+## CHANGES!
+
+Since R 4.0, the `named` mechanism has been replaced by reference counting. See [the R releases NEWS file](https://cran.r-project.org/doc/manuals/r-release/NEWS.html).
+
+## Notes based on the Advanced R account of the `named` mechanism
+
 There are two exceptions to the copy-on-modify behaviour:
 
 1. A object with a single binding is modified-in-place, as an optimisation (no extra allocation).
@@ -311,9 +317,9 @@ There are two exceptions to the copy-on-modify behaviour:
 
 Things get a bit more complicated, however, in practice. There are two particular causes for this:
 
-- R counts 0, 1 or many bindings, and once an object has many bindings there is no going back. So
-  releasing a binding will not lead to the modification-in-place optimisation: one less than many is
-  many.
+- R counts 0, 1 or many bindings [**this is not true since since R 4.0**], and once an object has 
+  many bindings there is no going back. So releasing a binding will not lead to the
+  modification-in-place optimisation: one less than many is many.
 - Calling most functions results in a reference to the object involved (hence objects get to many
   bindings without explicit name bindings).
   
