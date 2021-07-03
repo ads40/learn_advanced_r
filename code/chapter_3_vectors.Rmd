@@ -79,3 +79,54 @@ f
 String content often requires escaping: `?Quotes` gives the details.
 
 Remember here that non-syntactic names can be "escaped" by quoting with backticks: `.2way`.
+
+## Vectors and c()
+
+The combine function `c()` is used to make longer vectors. Applying `typeof()` and `length()` to a
+vector generally does what the name of the function suggests.
+
+```{r}
+
+my_vec <- c(TRUE, FALSE, TRUE)
+
+typeof(my_vec)
+length(my_vec)
+
+
+```
+
+Flattening and coercion are important parts of the behaviour of `c()`: `c()` always flattens to an
+atomic vector, and there is a hierarchy of type coercion applied.
+
+## Missing values
+
+The use of `NA` to represent missing values is an important feature of R in the context of data
+analysis. `NULL` exists, but it is not used to represent missing data.
+
+`NA` is contagious: computations over values including `NA`s will typically return `NA`.
+
+`NA` does NOT equal `NA`: "there is no reason to suppose one missing value has the same value as
+another" (Wickham 2019, 43). Use the function `is.NA()` to test for missing values.
+
+```{r}
+
+NA > 2
+10 * NA
+!NA
+
+# but note these principled exceptions
+
+NA ^ 0
+NA | TRUE
+NA & FALSE
+
+# using is.na()
+
+x <- c(NA, 5, NA, 6)
+x == NA # `==` is vectorised and so you might expect this to work, but it doesn't!
+is.na(x)
+
+```
+
+There are underlying specific `NA` values: `NA` itself is logical, but there are `NA_integer_` etc. 
+You shouldn't have to deal with this, because of type coercion in R.
