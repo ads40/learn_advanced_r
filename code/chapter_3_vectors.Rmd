@@ -2,7 +2,10 @@
 title: "Chapter 3 Vectors"
 author: "ADS"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
-output: html_document
+output:
+  html_document: default
+  pdf_document:
+    latex_engine: xelatex
 ---
 
 
@@ -68,13 +71,35 @@ d <- 0xBEEF
 e <- "Hi!"
 f <- 'Bye!'
 
+# but be aware that R on Windows doesn't play that nicely with unicode
+g <- c("ἄνδρα μοι", "आसीद् राज")
+
+
 a
 b
 c
 d
 e
 f
+# unicode fail here on Windows, both at the console, in RStudio, and in the printed output of code
+# in generated html and pdf documents (using XeLaTex)
+g
+# see discussion at https://github.com/rstudio/rstudio/issues/4156
+#
+# Kevin Ushey 2021-02-17 commented:
+#
+# > In general, the unfortunate truth right now for R on Windows is that you should restrict 
+# > yourself to the characters representable in your native locale. Hopefully this will change when
+# > (if) R switches to the UCRT, which will imply native support for UTF-8 in R itself.
+#
+# More detail here: https://github.com/r-windows/docs/blob/master/ucrt.md
+# And here:
+# https://developer.r-project.org/Blog/public/2020/07/30/windows/utf-8-build-of-r-and-cran-packages/index.html
+
 ```
+
+But the unicode prints OK inline: `r g[[1]]`
+
 
 String content often requires escaping: `?Quotes` gives the details.
 
