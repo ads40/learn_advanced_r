@@ -148,10 +148,122 @@ NA & FALSE
 # using is.na()
 
 x <- c(NA, 5, NA, 6)
-x == NA # `==` is vectorised and so you might expect this to work, but it doesn't!
+x == NA # `==` is vectorised and so you might expect this to work, but it doesn't do what you want
 is.na(x)
 
 ```
 
 There are underlying specific `NA` values: `NA` itself is logical, but there are `NA_integer_` etc. 
 You shouldn't have to deal with this, because of type coercion in R.
+
+## Testing
+
+Test the type of a vector using a function of the pattern `is.*()`, like `is.na()` above, but be
+careful.
+
+These work as advertised:
+
+- `is.logical()`
+- `is.integer()`
+- `is.double()`
+- `is.character()`
+
+But these are more complicated:
+
+- `is.vector()`: is.vector returns TRUE if x is a vector of the specified mode having no attributes
+  other than names.
+- `is.atomic()`: is.atomic is true for the atomic types ("logical", "integer", "numeric", "complex",
+  "character" and "raw") and NULL.
+- `is.numeric()`: The default method for is.numeric returns TRUE if its argument is of mode 
+  "numeric" (type "double" or type "integer") and not a factor, and FALSE otherwise.
+  
+## Coercion
+
+Atomic vectors have a single type: all elements of the vector are of the same type. When different
+types are combined, there is a hierarchy of coercion applied. The highest level wins.
+
+From lowest to highest: logical < integer < double < character.
+  
+```{r}
+
+c("a", 1)
+c("a", TRUE)
+c(2.1, 1)
+c(2.1, FALSE)
+c(1, TRUE)
+
+```
+
+Coercion is often applied automatically. Examples of the pragmatic usefulness of this include using
+numerical functions over logical vectors.
+
+```{r}
+
+x <- c(4, 6, 8)
+# how many values are greater than 5?
+sum(x > 5)
+# what proportion of values are greater than 5?
+mean(x > 5)
+
+
+```
+
+Use the `as.*()` group of functions to coerce directly. Failed coercion produces a warning.
+
+```{r}
+
+as.integer(c("1", "1.5", "a"))
+
+```
+
+## 3.2.5 Exercises
+
+### Question 1
+
+Raw and complex vectors are created with `raw()` and `complex()`.
+
+```{r}
+
+raw_x <- raw(3) # specify the length of the raw vector, initialised with 0
+raw_x[1] <- as.raw(40) # convert integer to raw bytes
+raw_x[2] <- charToRaw("A")
+
+raw_x # prints as hex values
+
+complex_x <- complex(real = rnorm(10), imaginary = rnorm(10))
+
+complex_x
+```
+
+### Question 2
+
+Predict output of coercion rules.
+
+```{r}
+
+c(1, FALSE) # integer wins: [1] 1 0
+c("a", 1) # character wins: [1] "a" "1"
+c(TRUE, 1L) # integer wins: [1] 1 1
+
+```
+
+### Question 3
+
+1. Why is `1 == "1"` true? Coercion of 1 to character.
+2. Why is `-1 < FALSE` true? Coercion of FALSE to integer.
+3. Why is `"one" < 2` false? "one" can't be coerced to integer, and NA is not less than 2.
+
+### Question 4
+
+The default missing value is a logical vector, because logical is at the base of the hierarchy of
+type coercion: a logical NA can be coerced up the hierarchy however required.
+
+### Question 5
+
+- `is.vector()`: is.vector returns TRUE if x is a vector of the specified mode having no attributes
+  other than names.
+- `is.atomic()`: is.atomic is true for the atomic types ("logical", "integer", "numeric", "complex",
+  "character" and "raw") and NULL.
+- `is.numeric()`: The default method for is.numeric returns TRUE if its argument is of mode 
+  "numeric" (type "double" or type "integer") and not a factor, and FALSE otherwise.
+  
