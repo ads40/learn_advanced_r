@@ -8,8 +8,12 @@ Here I work section-by-section through Hadley Wickham's *Advanced R*
 
 ## Environment
 
-- R version 4.1.0 (2021-05-18)
-- Platform: x86_64-w64-mingw32/x64 (64-bit)
+```sh
+$ R --version
+R version 4.3.1 (2023-06-16) -- "Beagle Scouts"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+```
 
 ## Authors
 
