@@ -35,10 +35,11 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
-# HTML and PDF files produced by RMarkdown
-
-*.html
-*.pdf
-
 # R Environment Variables
 .Renviron
+
+/.quarto/
+
+# Set output directory for Quarto in project _quarto.yaml file.
+_output/
+

@@ -2,14 +2,11 @@
 title: "Chapter 3 Vectors"
 author: "ADS"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
-output:
-  html_document: default
-  pdf_document:
-    latex_engine: xelatex
 ---
 
+The third chapter of [@wickham_advanced_2019].
 
-# Basic definitions
+## Basic definitions
 
 Vectors are the key group of data types in R. There is a basic division between atomic vectors
 and lists:
@@ -24,7 +21,7 @@ Vectors can have **attributes**: a named list of metadata. Two of these attribut
 - **dimension**: by adding dimensions, vectors can be structured as matrices
 - **class**: this attribute is central to the S3 object system.
 
-# Section 3.2 Atomic vectors
+## Atomic vectors
 
 Atomic vectors include the following types:
 
@@ -251,7 +248,7 @@ c(TRUE, 1L) # integer wins: [1] 1 1
 
 1. Why is `1 == "1"` true? Coercion of 1 to character.
 2. Why is `-1 < FALSE` true? Coercion of FALSE to integer.
-3. Why is `"one" < 2` false? "one" can't be coerced to integer, and NA is not less than 2.
+3. Why is `"one" < 2` false? The number 2 is coerced here to "2" which sorts after "one".
 
 ### Question 4
 
