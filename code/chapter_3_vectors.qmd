@@ -383,15 +383,72 @@ This points the way to the docs for `comment`:
 
 ## 3.4 S3 atomic vectors
 
+The attribute `class` is a key part of the S3 object system. S3 objects have a
+base vector type (the value of `typeof()`, which can be confusing when new to
+R) and then further metadata in attributes.
+
+Consider a factor:
+
+```{r}
+x <- factor(c("a", "b", "b", "a"))
+x
+# Contrast the base vector type
+typeof(x)
+# with the value of the class attribute
+attributes(x)$class
+```
+
+Since factors are built on top of integer vectors, treating factors as strings
+can be hazardous (will there be coercion? how or how not?), so explicit
+conversion is always a better idea.
+
+Dates and date-times are built on top of double vectors, and represent the
+dates and date-times as the number of days or seconds since the Unix epoch date:
+1970-01-01.
+
+Dates are difficult enough in practice that it is usually a good idea to use
+the functions of the `lubridate` package to take advantage of its well thought
+through API.
+
+### 3.4.5 Exercises
+
+#### Question 1
+
+`table()` returns a contingency table as an array with `class` "table". Its type
+is "integer" since it is an integer vector with added dimensions, dimension
+names and the `class` attribute "table". Added variables add an extra dimension
+of `dimnames`.
+
+#### Question 2
+
+What happens when the levels of a factor are modified?
+
+```{r}
+f1 <- factor(letters)
+f1
+as.integer(f1)
+levels(f1) <- rev(levels(f1))
+f1
+as.integer(f1)
+```
+
+This shows that the integer representation remains the same, but the change to
+the levels makes it look like the data itself has changed.
 
 ## 3.5 Lists
 
-
+TODO
 
 ## 3.6 Data frames and tibbles
 
+TODO
 
 ## 3.7 NULL
+
+TODO
+
+## References
+
 
 
 
