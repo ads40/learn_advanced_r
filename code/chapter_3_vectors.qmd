@@ -437,7 +437,30 @@ the levels makes it look like the data itself has changed.
 
 ## 3.5 Lists
 
-TODO
+Lists consists of references to other objects. This means that lists can contain
+elements of any type. The size of the list may be smaller than expected as a
+result.
+
+Note that lists can contain other lists. The `list()` function preserves
+structures but `c()` flattens. Dimensions can be used to create higher 
+dimensional lists.
+
+### 3.5.4 Exercises
+
+#### Question 1
+
+Homogeneity versus heterogeneity. Single reference to memory versus a collection
+of references. Different out-of-bounds behaviours.
+
+#### Question 2
+
+Lists are a kind of vector. `as.vector()` and `is.vector()` have different
+definitions in play
+
+#### Question 3
+
+Differences: `c()` coerces types and removes time zones but `unlist()` removes
+attributes.
 
 ## 3.6 Data frames and tibbles
 
