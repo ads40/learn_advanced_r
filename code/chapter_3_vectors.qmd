@@ -4,7 +4,7 @@ author: "ADS"
 date: "`r format(Sys.Date(), '%d %b %Y')`"
 ---
 
-The third chapter of [@wickham_advanced_2019].
+This is the third chapter of [@wickham_advanced_2019].
 
 ## 3.1 Basic definitions
 
@@ -464,11 +464,140 @@ attributes.
 
 ## 3.6 Data frames and tibbles
 
-TODO
+A data frame is:
+
+- a named list of vectors
+- with attributes for names, row.names, and class "data.frame"
+- with the constraint that the vectors must be the same length
+
+Note these functions:
+
+- `names()` == `colnames()`
+- `rownames()`
+- `nrow()`
+- `length()` == `ncol()`
+
+Data frames are a very important idea and crucial for the use of R for data
+science. But there are rough edges, and so the Tidyverse layers the `tibble` on
+top of `data.frame` in order to smooth these edges out.
+
+Importantly, a tibble never coerces its input (as data frames do by default for
+strings into factors).
+
+Avoid vector recycling when constructing data frames or tibbles: be explicit.
+
+Note the important advice to avoid row names given by Hadley Wickham in this
+section [-@wickham_advanced_2019, section 3.6]:
+
+> There are three reasons why row names are undesirable:
+>
+> Metadata is data, so storing it in a different way to the rest of the data is
+> fundamentally a bad idea. It also means that you need to learn a new set of
+> tools to work with row names; you can’t use what you already know about
+> manipulating columns.
+>
+> Row names are a poor abstraction for labelling rows because they only work when
+> a row can be identified by a single string. This fails in many cases, for
+> example when you want to identify a row by a non-character vector (e.g. a time
+> point), or with multiple vectors (e.g. position, encoded by latitude and
+> longitude).
+> 
+> Row names must be unique, so any duplication of rows (e.g. from bootstrapping)
+> will create new row names. If you want to match rows from before and after the
+> transformation, you’ll need to perform complicated string surgery.
+
+Therefore, row names are not supported by tibbles: convert any row names into a
+column using `rownames_to_column()` or `as.tibble(rownames = ...)`.
+
+### Subsetting
+
+Subsetting is an important part of using data frames in R, but again there are
+rough edges in base R implementation, when the return value can be hard to 
+product. Again tibbles guard against these rough edges.
+
+- `[` always returns a tibble.
+- `$` doesn't do partial matching and warns if a variable can't be found.
+
+This causes one point of confusion which should be noted.
+
+Base R often uses `df[, "col"]` to extract a single column as a vector, but this
+same idiom will return a tibble when applied to a tibble. You should instead 
+use `df[["col"]]` to express your meaning more clearly (which works with data
+frames and with tibbles).
+
+### List-columns
+
+Since data frames are lists, it is also possible to have a column that is itself
+a list: you can include any object in a data frame, therefore, and this is often
+used when storing the output of a model. Tibbles behave more helpfully than
+base R data frames when working with list-columns.
+
+### 3.6.8 Exercises
+
+#### Question 1
+
+Can you have a data frame with zero rows? What about zero columns?
+
+Yes, it is possible to have a data frame with zero columns and zero rows.
+
+```{r}
+df <- data.frame(NULL)
+df
+```
+
+#### Question 2
+
+What happens if you attempt to set row names that are not unique?
+
+This will raise an error: "duplicate row.names: ..."
+
+#### Question 3
+
+If `df` is a data frame, what can you say about `t(df)`, and `t(t(df))`? Perform
+some experiments, making sure to try different column types.
+
+`t()` is the matrix transpose function, but it will also transpose data frames
+(after turning them into matrices).
+
+This will presumably only make any sense in certain contexts and it seems that
+weird coercions will take place if columns of different types are involved.
+
+```{r}
+df4 <- data.frame(
+  x = 1:3,
+  y = c("a", "b", "c")
+)
+df4
+t(df4)
+
+df5 <- data.frame(
+  x = 1:3,
+  y = 4:6
+)
+df5
+t(df5)
+t(t(df5))
+```
+
+
+#### Question 4
+
+What does `as.matrix() `do when applied to a data frame with columns of 
+different types? How does it differ from `data.matrix()`?
+
+Not considered.
 
 ## 3.7 NULL
 
-TODO
+Wickham [-@wickham_advanced_2019, section 3.7] points to two common uses for
+`NULL`:
+
+1. To represent an empty vector (length zero) of arbitrary type.
+2. To represent an absent vector (e.g. as default function argument).
+
+Note that SQL's database `NULL` is equivalent to R's `NA`: these represent a
+missing element in a vector.
+
 
 ## References
 
